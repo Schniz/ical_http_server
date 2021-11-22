@@ -11,7 +11,7 @@ struct Input {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     setup_tracing();
 
     let server = warp::path!("by_url")
@@ -20,7 +20,12 @@ async fn main() {
         .and_then(build_output)
         .with(warp::trace::request());
 
-    warp::serve(server).run(([127, 0, 0, 1], 8080)).await;
+    let port: u16 = std::env::var("PORT")
+        .unwrap_or_else(|_| "8080".to_string())
+        .parse()?;
+    warp::serve(server).run(([0, 0, 0, 0], port)).await;
+
+    Ok(())
 }
 
 async fn build_output(input: Input) -> Result<impl warp::Reply, warp::Rejection> {

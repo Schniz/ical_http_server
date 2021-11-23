@@ -1,9 +1,8 @@
 mod duration;
 mod event;
 
-use crate::duration::Duration;
 use crate::event::Event;
-use chrono::{DateTime, Datelike, Local, TimeZone};
+use chrono::{DateTime, Local};
 use chrono_tz::Tz;
 use ical::IcalParser;
 use reqwest::IntoUrl;

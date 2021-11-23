@@ -1,15 +1,8 @@
-FROM alpine as chef
+FROM debian:11-slim as chef
+RUN apt-get update && apt-get install -y curl ca-certificates tzdata gcc
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH=$PATH:/root/.cargo/bin
 WORKDIR /app
-RUN apk add --no-cache tzdata musl-dev openssl-dev curl bash gcc rust cargo
-# ARG TARGETPLATFORM=linux/amd64
-# RUN case "${TARGETPLATFORM}" in \
-#   "linux/amd64")  RUST_TARGET=stable-x86_64-unknown-linux-musl  ;; \
-#   "linux/arm64")  RUST_TARGET=stable-aarch64-unknown-linux-gnu  ;; \
-#   "linux/arm/v7") RUST_TARGET=armv7-unknown-linux-musleabi  ;; \
-#   *) exit 1 ;; \
-#   esac; \
-#   curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain ${RUST_TARGET}
-# ENV PATH="/root/.cargo/bin:${PATH}"
 RUN cargo install cargo-chef
 
 FROM chef AS planner
@@ -25,7 +18,7 @@ COPY . .
 RUN cargo build --release --bin sensor_http
 
 # We do not need the Rust toolchain to run the binary!
-FROM alpine AS runtime
+FROM debian:11-slim AS runtime
 WORKDIR /app
 ENV RUST_LOG info
 ENV PORT 8080

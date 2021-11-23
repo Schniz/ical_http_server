@@ -1,6 +1,6 @@
-FROM rust as chef
-RUN apt-get update && apt-get install tzdata -y
+FROM rust:alpine as chef
 WORKDIR /app
+RUN apk add --no-cache tzdata musl-dev openssl-dev
 RUN cargo install cargo-chef
 
 FROM chef AS planner
@@ -16,9 +16,9 @@ COPY . .
 RUN cargo build --release --bin sensor_http
 
 # We do not need the Rust toolchain to run the binary!
-FROM debian:buster-slim AS runtime
+FROM alpine AS runtime
 WORKDIR /app
-RUN apt-get update && apt-get install -y libssl-dev ca-certificates
+# RUN apt-get update && apt-get install -y libssl-dev ca-certificates && rm -rf /var/lib/apt/lists/*
 ENV RUST_LOG info
 ENV PORT 8080
 EXPOSE $PORT

@@ -4,7 +4,7 @@ use ical::property::Property;
 
 #[derive(Debug)]
 pub struct Duration {
-    start: chrono::DateTime<Tz>,
+    pub start: chrono::DateTime<Tz>,
     end: chrono::DateTime<Tz>,
 }
 

@@ -1,12 +1,14 @@
 mod duration;
+mod event;
 
 use crate::duration::Duration;
-use chrono::{DateTime, Local, TimeZone};
+use crate::event::Event;
+use chrono::{DateTime, Datelike, Local, TimeZone};
 use chrono_tz::Tz;
 use ical::IcalParser;
 use reqwest::IntoUrl;
 use std::io::BufReader;
-use tracing::{info, info_span};
+use tracing::{error, info, info_span};
 
 pub async fn is_calendar_busy(into_url: impl IntoUrl) -> Result<bool, Box<dyn std::error::Error>> {
     let url = into_url.into_url()?;
@@ -35,13 +37,18 @@ pub async fn is_calendar_busy(into_url: impl IntoUrl) -> Result<bool, Box<dyn st
 
         if let Some(timezone) = get_timezone(&mut line.properties) {
             let current_time = current_time_at(&timezone)?;
+            let current_time_s = format!("{:?}", current_time);
+            info!(current_time = &current_time_s[..], "Found the given event");
 
             for event in line.events {
-                if let Some(duration) = Duration::try_from_properties(&event.properties, &timezone)
-                {
+                if let Some(event) = Event::try_from_properties(&event.properties, &timezone) {
+                    // if event.duration.start.year() == 2021 {
+                    //     let event_s = format!("{:?}", event);
+                    //     let current_time_s = format!("{:?}", current_time);
+                    //     info!(event = &event_s[..], current_time = &current_time_s[..], "Found the given event");
+                    // }
                     // Checks if current_time_in_tz is within the duration of the event
-                    if duration.contains(&current_time) {
-                        dbg!((duration, current_time));
+                    if event.duration.contains(&current_time) {
                         return Ok(true);
                     }
                 }
@@ -53,22 +60,38 @@ pub async fn is_calendar_busy(into_url: impl IntoUrl) -> Result<bool, Box<dyn st
 }
 
 fn current_time_at(tz: &Tz) -> Result<DateTime<Tz>, Box<dyn std::error::Error>> {
-    let current_time = Local::now();
-    let current_time_in_tz = tz
-        .from_local_datetime(&current_time.naive_local())
-        .latest()
-        .ok_or_else(|| "welp")?;
-    Ok(current_time_in_tz)
+    Ok(Local::now().with_timezone(tz))
 }
 
-fn get_timezone(calendar: &mut Vec<ical::property::Property>) -> Option<Tz> {
-    let mut timezone = None::<String>;
-    for prop in calendar.drain(..) {
+fn get_timezone(calendar: &Vec<ical::property::Property>) -> Option<Tz> {
+    let mut timezone = None::<&str>;
+    for prop in calendar.iter() {
         if prop.name.eq_ignore_ascii_case("x-wr-timezone") {
-            timezone = prop.value;
+            timezone = prop.value.as_ref().map(|x| &x[..]);
         }
     }
 
-    let timezone = timezone?.parse::<Tz>().ok()?;
-    Some(timezone)
+    if timezone.is_none() {
+        let properties = format!("{:?}", calendar);
+        error!(
+            properties = &properties[..],
+            "Can't get timezone from calendar properties"
+        );
+    }
+
+    let timezone = timezone?.parse::<Tz>();
+    if let Err(err) = &timezone {
+        error!("Can't parse timezone: {}", err)
+    }
+
+    match timezone {
+        Ok(timezone) => {
+            info!("Found timezone {}", timezone);
+            Some(timezone)
+        }
+        Err(err) => {
+            error!("Can't parse timezone: {}", err);
+            None
+        }
+    }
 }

@@ -1,15 +1,15 @@
 FROM alpine as chef
 WORKDIR /app
-RUN apk add --no-cache tzdata musl-dev openssl-dev curl bash gcc
-ARG TARGETPLATFORM=linux/amd64
-RUN case "${TARGETPLATFORM}" in \
-  "linux/amd64")  RUST_TARGET=stable-x86_64-unknown-linux-musl  ;; \
-  "linux/arm64")  RUST_TARGET=stable-aarch64-unknown-linux-gnu  ;; \
-  "linux/arm/v7") RUST_TARGET=armv7-unknown-linux-musleabi  ;; \
-  *) exit 1 ;; \
-  esac; \
-  curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain ${RUST_TARGET}
-ENV PATH="/root/.cargo/bin:${PATH}"
+RUN apk add --no-cache tzdata musl-dev openssl-dev curl bash gcc rust cargo
+# ARG TARGETPLATFORM=linux/amd64
+# RUN case "${TARGETPLATFORM}" in \
+#   "linux/amd64")  RUST_TARGET=stable-x86_64-unknown-linux-musl  ;; \
+#   "linux/arm64")  RUST_TARGET=stable-aarch64-unknown-linux-gnu  ;; \
+#   "linux/arm/v7") RUST_TARGET=armv7-unknown-linux-musleabi  ;; \
+#   *) exit 1 ;; \
+#   esac; \
+#   curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain ${RUST_TARGET}
+# ENV PATH="/root/.cargo/bin:${PATH}"
 RUN cargo install cargo-chef
 
 FROM chef AS planner

@@ -40,7 +40,7 @@ jobs:
       - name: create the directory structure
         run: |
           mkdir -p $(dirname ${{matrix.platform}})
-          cp target/{{matrix.rust_target}}/release/sensor_http ${{matrix.platform}}
+          cp target/${{matrix.rust_target}}/release/sensor_http ${{matrix.platform}}
 
       - name: store binary artifact
         uses: actions/upload-artifact@v2

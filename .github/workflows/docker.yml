@@ -15,18 +15,18 @@ jobs:
     strategy:
       matrix:
         include:
-          - rust_target: "aarch64-unknown-linux-musl"
-            docker_tag: "aarch64-musl"
-            binary_name: "linux/arm64"
-            artifact_name: "arm64"
+          # - rust_target: "aarch64-unknown-linux-musl"
+          #   docker_tag: "aarch64-musl"
+          #   platform: "linux/arm64"
+          #   artifact_name: "arm64"
           - rust_target: "armv7-unknown-linux-musl"
             docker_tag: "armv7-musleabihf"
-            binary_name: "linux/arm/v7"
+            platform: "linux/arm/v7"
             artifact_name: "armv7"
-          - rust_target: "x86_64-unknown-linux-musl"
-            docker_tag: "x86_64-musl"
-            platform: "linux/amd64"
-            artifact_name: "amd64"
+          # - rust_target: "x86_64-unknown-linux-musl"
+          #   docker_tag: "x86_64-musl"
+          #   platform: "linux/amd64"
+          #   artifact_name: "amd64"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -39,8 +39,8 @@ jobs:
 
       - name: create the directory structure
         run: |
-          mkdir -p $(dirname ${{matrix.binary_name}})
-          cp target/{{matrix.rust_target}}/release/sensor_http ${{matrix.binary_name}}
+          mkdir -p $(dirname ${{matrix.platform}})
+          cp target/{{matrix.rust_target}}/release/sensor_http ${{matrix.platform}}
 
       - name: store binary artifact
         uses: actions/upload-artifact@v2

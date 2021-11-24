@@ -20,19 +20,13 @@ jobs:
         include:
           - rust_target: "aarch64-unknown-linux-musl"
             docker_tag: "aarch64-musl"
-            platform: "linux/arm64"
-            tag_prefix: "arm64"
             artifact_name: "arm64"
           - rust_target: "armv7-unknown-linux-musleabihf"
             docker_tag: "armv7-musleabihf"
-            platform: "linux/arm/v7"
             artifact_name: "armv7"
-            tag_prefix: "armv7"
           - rust_target: "x86_64-unknown-linux-musl"
             docker_tag: "x86_64-musl"
-            platform: "linux/amd64"
             artifact_name: "amd64"
-            tag_prefix: "amd64"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,15 +37,10 @@ jobs:
           docker run --rm -v "$(pwd)":/home/rust/src messense/rust-musl-cross:${{matrix.docker_tag}} \
             cargo build --release
 
-      - name: create the directory structure
-        run: |
-          mkdir -p $(dirname ${{matrix.platform}})
-          cp target/${{matrix.rust_target}}/release/sensor_http ${{matrix.platform}}
-
       - name: store binary artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{matrix.artifact_name}}
+          name: target/${{matrix.rust_target}}/release/sensor_http
           path: linux
 
   docker:
@@ -67,6 +56,8 @@ jobs:
 
       - name: download binaries
         uses: actions/download-artifact@v2
+        with:
+          path: releases
 
       - name: list directories
         run: |

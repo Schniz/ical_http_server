@@ -40,8 +40,8 @@ jobs:
       - name: store binary artifact
         uses: actions/upload-artifact@v2
         with:
-          name: target/${{matrix.rust_target}}/release/sensor_http
-          path: linux
+          path: target/${{matrix.rust_target}}/release/sensor_http
+          name: ${{matrix.artifact_name}}
 
   docker:
     needs:

@@ -1,0 +1,3 @@
+FROM messense/rust-musl-cross:armv7-musleabihf
+COPY . .
+RUN cargo build --release --target=armv7-unknown-linux-musleabihf

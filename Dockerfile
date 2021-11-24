@@ -1,7 +1,7 @@
 FROM alpine as selector
 ARG TARGETPLATFORM
 COPY releases .
-RUN case "${TARGETPLATFORM}"; in \
+RUN case "${TARGETPLATFORM}" in \
   "linux/arm/v7") \
   BINARY_PATH="releases/armv7/sensor_http" \
   ;; \

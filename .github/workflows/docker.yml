@@ -19,7 +19,7 @@ jobs:
           #   docker_tag: "aarch64-musl"
           #   platform: "linux/arm64"
           #   artifact_name: "arm64"
-          - rust_target: "armv7-unknown-linux-musl"
+          - rust_target: "armv7-unknown-linux-musleabihf"
             docker_tag: "armv7-musleabihf"
             platform: "linux/arm/v7"
             artifact_name: "armv7"

@@ -12,6 +12,9 @@ on:
 
 jobs:
   build_binaries:
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
     strategy:
       matrix:
         include:

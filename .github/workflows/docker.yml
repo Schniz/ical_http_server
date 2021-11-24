@@ -36,7 +36,7 @@ jobs:
         run: |
           docker run --rm -v "$(pwd)":/home/rust/src messense/rust-musl-cross:${{matrix.docker_tag}} \
             cargo build --release
-          docker run --rm -it -v "$(pwd)":/home/rust/src messense/rust-musl-cross:${{matrix.docker_tag}} \
+          docker run --rm -v "$(pwd)":/home/rust/src messense/rust-musl-cross:${{matrix.docker_tag}} \
             musl-strip target/${{matrix.rust_target}}/release/sensor_http
 
       - name: store binary artifact

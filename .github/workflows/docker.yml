@@ -19,7 +19,7 @@ jobs:
 
       - name: build binary
         run: |
-          docker run --rm -it -v "$(pwd)":/home/rust/src messense/rust-musl-cross:armv7-musleabihf cargo build --release
+          docker run --rm -v "$(pwd)":/home/rust/src messense/rust-musl-cross:armv7-musleabihf cargo build --release
 
       - name: store binary artifact
         uses: actions/upload-artifact@v2

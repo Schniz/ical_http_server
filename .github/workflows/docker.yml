@@ -15,18 +15,18 @@ jobs:
     strategy:
       matrix:
         include:
-          # - rust_target: "aarch64-unknown-linux-musl"
-          #   docker_tag: "aarch64-musl"
-          #   platform: "linux/arm64"
-          #   artifact_name: "arm64"
+          - rust_target: "aarch64-unknown-linux-musl"
+            docker_tag: "aarch64-musl"
+            platform: "linux/arm64"
+            artifact_name: "arm64"
           - rust_target: "armv7-unknown-linux-musleabihf"
             docker_tag: "armv7-musleabihf"
             platform: "linux/arm/v7"
             artifact_name: "armv7"
-          # - rust_target: "x86_64-unknown-linux-musl"
-          #   docker_tag: "x86_64-musl"
-          #   platform: "linux/amd64"
-          #   artifact_name: "amd64"
+          - rust_target: "x86_64-unknown-linux-musl"
+            docker_tag: "x86_64-musl"
+            platform: "linux/amd64"
+            artifact_name: "amd64"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -90,8 +90,6 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          # platforms: linux/amd64,linux/arm64
-          file: Dockerfile.armv7
-          platforms: linux/arm/v7
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

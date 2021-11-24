@@ -15,13 +15,13 @@ RUN case "${TARGETPLATFORM}" in \
   exit 1 \
   ;; \
   esac; \
-  cp $BINARY_PATH /app
+  cp $BINARY_PATH /server
 
 FROM alpine AS runtime
 WORKDIR /app
 ENV RUST_LOG info
 ENV PORT 8080
 EXPOSE $PORT
-COPY --from=selector /app /usr/local/bin/
-RUN chmod u+x /app
-ENTRYPOINT ["/app"]
+COPY --from=selector /server /usr/local/bin/
+RUN chmod u+x /usr/local/bin/server
+ENTRYPOINT ["/usr/local/bin/server"]

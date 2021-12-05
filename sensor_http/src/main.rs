@@ -1,4 +1,4 @@
-use sensor_lib::{async_is_calendar_busy, sync_is_calendar_busy};
+use sensor_lib::is_calendar_busy;
 use std::collections::HashMap;
 use tracing::error;
 use tracing::subscriber::set_global_default;
@@ -9,8 +9,6 @@ use warp::Filter;
 #[derive(serde::Deserialize, Debug)]
 struct Input {
     urls: HashMap<String, url::Url>,
-    #[serde(default)]
-    use_async: bool,
 }
 
 #[tokio::main]
@@ -36,17 +34,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 async fn build_output(input: Input) -> Result<impl warp::Reply, warp::Rejection> {
     use futures::stream::StreamExt;
 
-    let is_async = input.use_async.clone();
-
     let busy_urls = futures::stream::iter(input.urls.into_iter())
         .map(|(url, url_obj)| {
             let url = url.clone();
             async move {
-                let is_busy = if is_async {
-                    async_is_calendar_busy(url_obj).await
-                } else {
-                    sync_is_calendar_busy(url_obj).await
-                };
+                let is_busy = is_calendar_busy(url_obj).await;
                 if let Err(err) = &is_busy {
                     error!("Can't get data: {}", err);
                 }

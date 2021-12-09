@@ -6,7 +6,6 @@ The server is distributed as a very slim docker image that allows easy installat
 
 ## Why not using the default HA Calendar integration?
 
-
 ### Refresh rates
 
 Unfortunately, the refresh rate of the different calendars are ~15min. This can create major delays and issues, especially when cancelling an automation in the last minute.
@@ -24,9 +23,9 @@ Accepts JSON with the format of:
 ```json
 {
   "urls": {
-      "calendar_name_a": "https://url",
-      "calendar_name_b": "https://url",
-      // ...
+    "calendar_name_a": "https://url",
+    "calendar_name_b": "https://url"
+    // ...
   }
 }
 ```
@@ -35,10 +34,25 @@ And returns the following payload:
 
 ```json
 {
-    "calendar_name_a": true,
-    "calendar_name_b": false,
-    // ...
+  "calendar_name_a": true,
+  "calendar_name_b": false
+  // ...
 }
 ```
 
 where `true` means "busy", and `false` means "free".
+
+## Example usage with Home Assistant
+
+```yaml
+binary_sensor:
+  - platform: rest
+    name: boiler_calendar_busy
+    scan_interval: 60
+    resource: https://ical-sensor.my-home.server/by_url
+    method: POST
+    payload: |
+      {"urls": {"boiler": "MY_ICAL_URL" }}
+    value_template: "{{ value_json.boiler }}"
+```
+
